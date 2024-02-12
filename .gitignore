@@ -1,0 +1,9 @@
+# Ignore nearly everything 
+*
+
+# Except...
+!Census_distribution_extraction.ipynb
+!distributions_3.R
+
+# Don't ignore this file
+!.gitignore
