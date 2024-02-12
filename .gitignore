@@ -3,7 +3,11 @@
 
 # Except...
 !Census_distribution_extraction.ipynb
-!distributions_3.R
+!distribution_extraction.R
+!renv/
+!renv/settings.json
+!renv.lock
 
 # Don't ignore this file
 !.gitignore
+
