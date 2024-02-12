@@ -44,5 +44,9 @@ result <- g(census_2021, selected_columns)
 
 # Output results to CSV
 for (col in names(result)) {
-  write_csv(result[[col]], paste0(col, '.csv'))
+# Ensure the output directory exists
+  dir.create("R_outputs", showWarnings = FALSE)
+
+# Save the CSV file in the "R_outputs" directory
+  write_csv(result[[col]], paste0("R_outputs/", col, '.csv'))
 }
