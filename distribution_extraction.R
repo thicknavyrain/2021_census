@@ -1,9 +1,20 @@
 library(readr)
 library(dplyr)
 library(tidyr)
+library(here)
 
-# Read the CSV file
-census_2021 <- read_csv('housingandsanitation_10%_20221011d.csv', show_col_types = FALSE)
+# Set the working directory to the location of the script
+setwd(here())
+
+# Adjust the `col_types` accordingly if the types differ
+column_types <- cols(
+  .default = col_guess(),
+  h13n2 = col_double(), # Column 73 should be double
+  s08e = col_character() # Column 96 should be character
+)
+
+# Read the CSV file with the specified column types
+census_2021 <- read_csv('housingandsanitation_10%_20221011d.csv', col_types = column_types)
 
 # Rename columns
 census_2021 <- rename(census_2021, 
@@ -16,16 +27,20 @@ census_2021 <- rename(census_2021,
                       rooms = h07a, 
                       new_roof_material = newh03)
 
-# Define the function to group data and count values for selected columns
 g <- function(df, selected_columns) {
   results <- list()
   
   for (col in selected_columns) {
-    # For each selected column, calculate the count of each unique value per group
+    # Ensure the column exists in the dataframe
+    if (!col %in% names(df)) {
+      stop(paste("Column", col, "does not exist in the dataframe."))
+    }
+    
+    # Dynamically refer to columns using tidy evaluation
     grouped_df <- df %>%
-      group_by(region, distcode, subdist, .data[[col]]) %>%
+      group_by(region, distcode, subdist, !!sym(col)) %>%
       summarise(count = n(), .groups = 'drop') %>%
-      pivot_wider(names_from = .data[[col]], values_from = count, values_fill = list(count = 0))
+      pivot_wider(names_from = !!sym(col), values_from = count, values_fill = list(count = 0))
 
     # Store the result in the list with the column name as the key
     results[[col]] <- grouped_df
@@ -33,6 +48,7 @@ g <- function(df, selected_columns) {
   
   return(results)
 }
+
 
 # List of new column names to be processed
 selected_columns <- c('dwelling_type', 'wall_material', 'roof_material', 
